@@ -12,7 +12,7 @@ pip install -r requirements.txt
 ```
 2. Run the app using the following command:
 ```
-streamlit run app.py
+python -m streamlit run app.py
 ```
 3. Enter the text you want to check for plagiarism.
 4. Wait for the app to collect the data and compare it with your text.
