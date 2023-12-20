@@ -1,3 +1,4 @@
+PyPDF2==3.0.1
 beautifulsoup4==4.12.2
 nltk==3.8.1
 pandas==2.1.3
