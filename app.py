@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup
 import requests
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-
+file_path =""
 
 def extract_text_from_pdf(pdf_path):
     with open(pdf_path, 'rb') as file:
@@ -122,5 +122,5 @@ if st.button('Check for plagiarism'):
     df = df.reset_index(drop=True)
     st.table(df)
 
-
-os.remove(file_path)
+if file_path:
+    os.remove(file_path)
