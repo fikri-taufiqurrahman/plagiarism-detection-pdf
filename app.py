@@ -121,4 +121,6 @@ if st.button('Check for plagiarism'):
     df = df.sort_values(by=['Similarity'], ascending=False)
     df = df.reset_index(drop=True)
     st.table(df)
-    
+
+
+os.remove(file_path)
