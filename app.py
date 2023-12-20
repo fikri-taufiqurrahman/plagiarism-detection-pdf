@@ -1,5 +1,7 @@
 import streamlit as st
 import os
+# import nltk 
+# nltk.download('punkt')
 
 from PyPDF2 import PdfReader
 import pandas as pd
