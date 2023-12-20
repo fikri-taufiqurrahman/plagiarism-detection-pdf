@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 
+=======
+PyPDF2==3.0.1
+>>>>>>> 52caaba401abec4f1fd3e6d1d3ff70bca749ded0
 beautifulsoup4==4.12.2
 PyPDF2==3.0.1
 nltk==3.8.1
