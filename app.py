@@ -81,7 +81,7 @@ st.set_page_config(page_title='Plagiarism Detection')
 st.title('Plagiarism Detection')
 
 st.write("""
-### Enter the text to check for plagiarism
+### Upload the pdf file to check for plagiarism
 """)
 
 # Widget untuk mengunggah file
