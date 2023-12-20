@@ -1,16 +1,18 @@
+import os
 import base64
 import streamlit as st
 import pandas as pd
 from nltk import tokenize
 from bs4 import BeautifulSoup
+from PyPDF2 import PdfReader
 import requests
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-import fitz
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
 from io import BytesIO
+
 file_path =""
 
 def extract_text_from_pdf(pdf_path):
@@ -78,16 +80,7 @@ def get_similarity_list(text, url_list):
         similarity_list.append(similarity)
     return similarity_list
 
-def extract_text_from_pdf(uploaded_file):
-    with open(uploaded_file.name, "wb") as pdf_file:
-        pdf_file.write(uploaded_file.getbuffer())
-    doc = fitz.open(pdf_file.name)
-    text = ''
-    for page_num in range(doc.page_count):
-        page = doc[page_num]
-        text += page.get_text()
-    doc.close()
-    return text
+
 
 def create_pdf(results_df, pdf_path):
     doc = SimpleDocTemplate(pdf_path, pagesize=letter)
@@ -122,13 +115,23 @@ st.write("""
 """)
 uploaded_file = st.file_uploader("Upload PDF file", type=["pdf"])
 
+if uploaded_file is not None:
+    # Simpan file di direktori yang sama dengan skrip
+    file_path = os.path.join(os.getcwd(), uploaded_file.name)
+
+    with open(file_path, "wb") as file:
+        file.write(uploaded_file.read())
+
+    st.success(f"File '{uploaded_file.name}' berhasil diunggah dan disimpan di {file_path}")
+
+
 url = []
+
 if st.button('Check for plagiarism'):
     st.write(""
     ### Checking for plagiarism...
     "")
-    if uploaded_file is not None:
-        text = extract_text_from_pdf(uploaded_file)
+    text = extract_text_from_pdf(file_path)
     sentences = get_sentences(text)
     url = [get_url(sentence) for sentence in sentences]
     if None in url:
@@ -142,9 +145,10 @@ if st.button('Check for plagiarism'):
     df = df.reset_index(drop=True)
     st.table(df)
 
-if file_path:
-    # Simpan hasil deteksi ke file PDF
-    buffer = BytesIO()
-    create_pdf(df, buffer)
-    st.markdown(get_binary_file_downloader_html(buffer, "plagiarism_detection_results.pdf"), unsafe_allow_html=True)
-    os.remove(file_path)
+    if file_path:
+        # Simpan hasil deteksi ke file PDF
+        buffer = BytesIO()
+        create_pdf(df, buffer)
+        st.markdown(get_binary_file_downloader_html(buffer, f"plagiarism_detection_{uploaded_file.name}"), unsafe_allow_html=True)
+        os.remove(file_path)
+        os.remove(os.path.join(f"plagiarism_detection_{uploaded_file.name}"))
