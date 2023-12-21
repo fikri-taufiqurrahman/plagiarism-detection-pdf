@@ -10,7 +10,8 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+from reportlab.platypus import Paragraph, SimpleDocTemplate, Table, TableStyle
+from reportlab.lib.styles import getSampleStyleSheet
 from io import BytesIO
 
 file_path =""
@@ -84,22 +85,17 @@ def get_similarity_list(text, url_list):
 
 def create_pdf(results_df, pdf_path):
     doc = SimpleDocTemplate(pdf_path, pagesize=letter)
-    data = [results_df.columns.tolist()] + results_df.values.tolist()
-    table = Table(data)
-    style = TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black)
-    ])
-    style.add('BACKGROUND', (0, 1), (-1, -1), colors.beige)
-    style.add('GRID', (0, 1), (-1, -1), 1, colors.black)
-    style.add('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold')
-    style.add('BOTTOMPADDING', (0, 0), (-1, 0), 18)
-    table.setStyle(style)
-    doc.build([table])
+
+    # Membuat list paragraf dari hasil deteksi
+    paragraphs = []
+    for index, row in results_df.iterrows():
+        similarity_percentage = row['Similarity'] * 100
+        paragraph_text = f"*Sentence {index + 1}:* {row['Sentence']}\n*URL:* {row['URL']}\n*Similarity:* {similarity_percentage:.0f}%\n\n"
+        paragraphs.append(Paragraph(paragraph_text, getSampleStyleSheet()['BodyText']))
+
+    # Membangun dokumen dengan list paragraf
+    doc.build(paragraphs)
+
 
 def get_binary_file_downloader_html(buffer, file_name):
     with open(file_name, 'wb') as f:
@@ -143,7 +139,8 @@ if st.button('Check for plagiarism'):
     df = pd.DataFrame({'Sentence': sentences, 'URL': url, 'Similarity': similarity_list})
     df = df.sort_values(by=['Similarity'], ascending=False)
     df = df.reset_index(drop=True)
-    st.table(df)
+    # Menampilkan hasil deteksi
+    st.table(df.style.format({'Similarity': '{:.0%}'}))
 
     if file_path:
         # Simpan hasil deteksi ke file PDF
